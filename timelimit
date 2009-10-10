@@ -28,6 +28,7 @@ proc_pid=$!
     kill $proc_pid
     sleep "$timeout"
     kill -9 $proc_pid
+    sleep "$timeout"
 ) &
 # Save its PID
 watchdog_pid=$!
