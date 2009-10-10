@@ -1,0 +1,37 @@
+DESCRIPTION
+
+timelimit is a a wrapper to any command that ensures it
+does not run for more than <timeou> seconds
+
+SYNTAX
+
+  timelimit <timeout> <command> [<arg> ...]
+
+Exit code of the wrapper is the exit code of the command.
+If the command did not finish in given timeout it is
+killed, so the exit code is the usual exit code of killed
+processes (in my case its 143).
+
+EXAMPLE
+
+  timelimit 10 wget http://github.com/
+
+Runs wget http://github.com/
+If this ends within 10 seconds its output and exit code is
+just the same as wget's. If it takes more than 10 seconds,
+the command is killed and exit code is non-zero
+
+TESTS
+
+  timelimit 10 sleep 5 && echo OK
+
+This should print OK, because sleep 5 should end in about 5
+seconds, while the limit is 10.
+
+  timelimit 5 sleep 10 || echo OK
+
+This should print OK too, because time limit is 5 seconds,
+the command will try to take 10 seconds and we print OK if
+the command fails. The whole thing should take about 5
+seconds.
+

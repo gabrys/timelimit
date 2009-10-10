@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# This script is a wrapper to any command that ensures it
+# does not run for more than <timeou> seconds
+# 
+# Syntax:
+#  timelimit <timeout> <command> [<arg> ...]
+#
+# Exit code of the wrapper is the exit code of the command.
+# If the command did not finish in given timeout it is
+# killed, so the exit code is the usual exit code of killed
+# processes (in my case its 143).
+#
+
+timeout="$1"
+shift
+
+# Run the command in the background
+(
+    "$@"
+) &
+# Save its PID
+proc_pid=$!
+
+# Run the watchdog process in the background
+(
+    sleep "$timeout"
+    kill $proc_pid
+    sleep "$timeout"
+    kill -9 $proc_pid
+) &
+# Save its PID
+watchdog_pid=$!
+
+# Wait till command ends (normally or being killed)
+wait $proc_pid
+# Save its exit code
+exit_code=$?
+
+# Kill the watchdog
+kill $watchdog_pid
+
+# Return the proper exit code
+exit $exit_code
+
